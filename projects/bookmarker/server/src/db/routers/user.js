@@ -2,6 +2,7 @@ const express = require("express")
 const User =require('../../models/user')
 const router =new express.Router()
 const bcryptjs =require("bcryptjs")
+const auth =require("../../middleware/auth")
 
 
 
@@ -12,7 +13,8 @@ router.post('/users', async (req, res) => {
     const user = new User(req.body)
     try {
         await user.save()
-        res.send(user)
+        const token =await user.generateAuthToken()
+        res.send({user,token})
     }
     catch (error) {
         console.log("Error:" + error)
@@ -25,22 +27,50 @@ router.post('/users/login', async(req,res)=> {
     try {
 
         const user =await User.findByCredentials(req.body.email,req.body.password)
-        res.send(user)
+        console.log (user)
+        const token =await user.generateAuthToken()
+        res.send({user,token})
 
     }
     catch(error) {
-        //console.log(error)
+        console.log(error)
         res.status(400).send(error)
     }
 
 })
 
+router.post('/users/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token
+        })
+        await req.user.save()
+
+        res.send()
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = []
+        await req.user.save()
+        res.send()
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
+})
 
 //Rest End point to a return all users
 
 router.get('/users', async (req, res) => {
     try {
-        await User.find({})
+        const users = await User.find({})
         res.status(200).send(users)
     }
     catch (error) {

@@ -14,6 +14,12 @@ const app = express()
 const port = process.env.port || 3000
 //setup express to handle JSON
 
+//use the code below to put the site in maintenance mode
+
+// app.use ((req,res,next)=> {
+//     res.status(503).send("The Site is in maintence mode, please come back after sometime!")
+// })
+
 app.use(express.json())
 // make the app listen at the port
 
@@ -41,4 +47,18 @@ app.listen(port, () => {
 //     }
 // }
 
+// myfunction()
+// const jwt =require("jsonwebtoken")
+
+// const myfunction = async ()=>{
+//     try{
+//         const token =await jwt.sign({_id:'abc123'}, 'thisismycourse', {expiresIn:'7 days'})
+//         //console.log(token)
+//         const data =await jwt.verify(token,'thisismycourse')
+//         console.log("This is the token verfication:" + data)
+//     }
+//     catch(error){
+//         console.log(error)
+//     }
+// }
 // myfunction()
